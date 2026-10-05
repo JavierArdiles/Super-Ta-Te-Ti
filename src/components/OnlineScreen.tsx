@@ -8,6 +8,7 @@ import { MainBoard } from './MainBoard'
 import { PlayerCard } from './PlayerCard'
 import { PlayerTag } from './PlayerTag'
 import { SubWinMessage } from './SubWinMessage'
+import { prepareTurnAlerts, useTurnNotification } from './turnNotification'
 
 interface OnlineScreenProps {
   intent: OnlineIntent
@@ -39,7 +40,10 @@ export function OnlineScreen({ intent, profile, onProfileChange, onExit }: Onlin
   if (!seat) {
     // Tu ficha guardada puede coincidir con la de alguien que ya está en la sala
     const available = { ...profile, appearance: avoidTaken(profile.appearance, room.players.map(p => p.appearance)) }
-    return <JoinPanel room={room} profile={available} onProfileChange={onProfileChange} onJoin={() => online.join(available)} onExit={exit} />
+    return <JoinPanel room={room} profile={available} onProfileChange={onProfileChange} onJoin={() => {
+          prepareTurnAlerts()
+          online.join(available)
+        }} onExit={exit} />
   }
 
   if (room.status === 'waiting') return <Lobby room={room} seat={seat} onExit={exit} />
@@ -181,6 +185,8 @@ function OnlineGame({ room, seat, connected, error, onClearError, onMove, onRema
   const previousWinners = useRef(state.boardWinners)
   const myTurn = state.currentPlayer === seat && !state.winner && !state.draw
   const tag = (s: Player) => <PlayerTag appearance={appearances[s]} name={names[s]} />
+
+  useTurnNotification(myTurn, `Sala ${room.code}`)
 
   // El servidor solo manda el estado: el cartel de sub-tablero ganado se deduce comparando
   useEffect(() => {
