@@ -4,6 +4,7 @@ import { Game } from './components/Game'
 import { loadConfig, resolveAppearances, resolveFirstPlayer, resolveNames, saveConfig } from './components/gameConfig'
 import { OnlineScreen } from './components/OnlineScreen'
 import { Setup } from './components/Setup'
+import { prepareTurnAlerts } from './components/turnNotification'
 import type { OnlineIntent } from './online/useOnlineRoom'
 
 type Screen = { name: 'setup' } | { name: 'game' } | { name: 'online'; intent: OnlineIntent }
@@ -23,6 +24,7 @@ export default function App() {
   const profile = { name: config.names.X, appearance: config.appearances.X }
 
   const play = () => {
+    if (config.mode === 'bot' || config.mode === 'online') prepareTurnAlerts()
     if (config.mode !== 'online') return setScreen({ name: 'game' })
     setScreen({
       name: 'online',

@@ -8,6 +8,7 @@ import { BOT_PLAYER, MODES, type Mode } from './gameConfig'
 import { MainBoard } from './MainBoard'
 import { PlayerTag } from './PlayerTag'
 import { SubWinMessage } from './SubWinMessage'
+import { useTurnNotification } from './turnNotification'
 
 // Pausa variable para que el bot parezca pensar
 const BOT_MIN_DELAY_MS = 900
@@ -46,6 +47,8 @@ export function Game({ mode, level, appearances, names, pickFirstPlayer, onExit 
   const reactedThisRound = useRef(false)
 
   const isBotTurn = mode === 'bot' && state.currentPlayer === BOT_PLAYER && !isGameOver(state)
+  const isHumanTurnVsBot = mode === 'bot' && state.currentPlayer !== BOT_PLAYER && !isGameOver(state)
+  useTurnNotification(isHumanTurnVsBot, `${names[BOT_PLAYER]} ya jugó.`)
 
   const play = useCallback((current: GameState, boardIndex: number, cellIndex: number) => {
     const result = applyMove(current, boardIndex, cellIndex)
